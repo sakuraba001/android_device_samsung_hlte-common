@@ -57,6 +57,11 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     gps.msm8974
 
+# camera
+PRODUCT_PACKAGES += \
+    camera.msm8974 \
+    libxml2
+
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/gps/etc/gps.conf:/system/etc/gps.conf \
     $(LOCAL_PATH)/gps/etc/sap.conf:/system/etc/sap.conf
@@ -75,8 +80,8 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/keylayout/ue_rf4ce_remote.kl:system/usr/keylayout/ue_rf4ce_remote.kl
 
 # Keystore
-PRODUCT_PACKAGES += \
-    keystore.msm8974
+#PRODUCT_PACKAGES += \
+#   keystore.msm8974
 
 # Lights
 PRODUCT_PACKAGES += \
@@ -90,7 +95,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     com.android.nfc_extras \
     NfcNci \
-    nfc_nci.msm8974 \
+    nfc_nci.bcm2079x.msm8974 \
     Tag
 
 PRODUCT_COPY_FILES += \
@@ -102,6 +107,7 @@ PRODUCT_COPY_FILES += \
 # Ramdisk
 PRODUCT_PACKAGES += \
     fstab.qcom \
+    init.carrier.rc \
     init.crda.sh \
     init.qcom.rc \
     init.qcom.usb.rc \
