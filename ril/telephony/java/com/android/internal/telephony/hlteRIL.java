@@ -65,6 +65,7 @@ public class hlteRIL extends RIL implements CommandsInterface {
     private boolean mIsSendingSMS = false;
     protected boolean isGSM = false;
     public static final long SEND_SMS_TIMEOUT_IN_MS = 30000;
+    private boolean newril = needsOldRilFeature("newril"); //4.4.4 verson of Samsung RIL
 
     private Message mPendingGetSimStatus;
 
@@ -396,7 +397,7 @@ public class hlteRIL extends RIL implements CommandsInterface {
         if (error == 0 || p.dataAvail() > 0) {
             switch (rr.mRequest) {
                 case RIL_REQUEST_OPERATOR: ret =  operatorCheck(p); break;
-                case RIL_REQUEST_VOICE_REGISTRATION_STATE: ret = responseVoiceDataRegistrationState(p); break;
+                case RIL_REQUEST_VOICE_REGISTRATION_STATE: ret = responseVoiceRegistrationState(p); break;
                 case RIL_REQUEST_DATA_REGISTRATION_STATE: ret = responseDataRegistrationState(p); break;
                 default:
                     throw new RuntimeException("Unrecognized solicited response: " + rr.mRequest);
@@ -425,7 +426,7 @@ public class hlteRIL extends RIL implements CommandsInterface {
 
     private Object
     responseDataRegistrationState(Parcel p) {
-        String response[] = (String[])responseStrings(p);
+        String response[] = (String[])responseStrings(p); // all data from parcell get popped
         if (isGSM){
             /* DANGER WILL ROBINSON
              * In some cases from Vodaphone we are receiving a RAT of 102
@@ -437,11 +438,17 @@ public class hlteRIL extends RIL implements CommandsInterface {
                 response[3] = "2";
             }
         }
-        return responseVoiceDataRegistrationState(p);
+        return responseVoiceDataRegistrationState(response);
     }
+
     private Object
-    responseVoiceDataRegistrationState(Parcel p) {
-        String response[] = (String[])responseStrings(p);
+    responseVoiceRegistrationState(Parcel p) {
+        String response[] = (String[])responseStrings(p); // all data from parcell get popped
+        return responseVoiceDataRegistrationState(response);
+    }
+
+    private Object
+    responseVoiceDataRegistrationState(String[] response) {
         if (isGSM){
             return response;
         }
@@ -638,29 +645,19 @@ public class hlteRIL extends RIL implements CommandsInterface {
 
         send(rr);
     }
-
-    // Hack for Lollipop
-    // The system now queries for SIM status before radio on, resulting
-    // in getting an APPSTATE_DETECTED state. The RIL does not send an
-    // RIL_UNSOL_RESPONSE_SIM_STATUS_CHANGED message after the SIM is
-    // initialized, so delay the message until the radio is on.
+    
     @Override
     public void
-    getIccCardStatus(Message result) {
-        if (mState != RadioState.RADIO_ON) {
-            mPendingGetSimStatus = result;
-        } else {
-            super.getIccCardStatus(result);
+    acceptCall (Message result) {
+        if(!newril){
+            super.acceptCall(result);
+            return;
         }
-    }
-
-    @Override
-    protected void switchToRadioState(RadioState newState) {
-        super.switchToRadioState(newState);
-
-        if (newState == RadioState.RADIO_ON && mPendingGetSimStatus != null) {
-            super.getIccCardStatus(mPendingGetSimStatus);
-            mPendingGetSimStatus = null;
-        }
+        RILRequest rr
+        = RILRequest.obtain(RIL_REQUEST_ANSWER, result);
+        if (RILJ_LOGD) riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+        rr.mParcel.writeInt(1);
+        rr.mParcel.writeInt(0);
+        send(rr);
     }
 }

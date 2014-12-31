@@ -15,8 +15,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     tunnel.audio.encode=true \
     media.aac_51_output_enabled=true \
     audio.offload.pcm.16bit.enable=true \
-    audio.offload.pcm.24bit.enable=true  \
-    qcom.hw.aac.encoder=true
+    audio.offload.pcm.24bit.enable=true
 
 # Display
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -44,9 +43,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.data.netmgrd.qos.enable=true \
     persist.radio.add_power_save=1 \
-    persist.radio.apm_sim_not_pwdn=1 \
     persist.radio.lte_vrat_report=1 \
-    persist.radio.mode_pref_nv10=1 \
+    persist.radio.mode_pref_nv10=1 
 
 # Sensors
 PRODUCT_PROPERTY_OVERRIDES += \
